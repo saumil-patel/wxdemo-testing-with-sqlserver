@@ -1,0 +1,95 @@
+trigger:
+ batch: true
+ branches:
+   include:
+   - "*"
+
+pr:
+- master
+- rel/*
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: Platform Engineering/vsts-build-templates
+
+variables:
+  appName: Wx-Sql-Test-Demo-Api
+  projectName: 'wx-demo-api'
+  azureContainerRegistry: 'wowdevcontainers.azurecr.io'
+  azureSubscriptionEndpoint: 'WOWDEVTEST-ECF'
+  dotnetVersion: 3.1.100
+
+jobs:
+- job: BuildTest
+  pool:
+    name: wlx-ubuntu1804
+  workspace:
+    clean: all
+  steps:
+  - checkout: self
+    clean: true
+  - task: Bash@3
+    displayName: Docker pull sql server
+    inputs:
+      targetType: 'inline'
+      script: docker pull mcr.microsoft.com/mssql/server:2017-latest
+  - task: DockerCompose@0
+    displayName: Docker compose test sql server instance
+    inputs:
+      action: Run a Docker Compose command
+      dockerComposeFile: docker-compose.data.yml
+      dockerComposeCommand: 'up --build --detach'
+  - task: Bash@3
+    displayName: Grant execute permission to sql server health script
+    inputs:
+      targetType: 'inline'
+      script: chmod +x wait-for-server-health.sh
+  - task: Bash@3
+    displayName: Wait for sql server to be healthy
+    inputs:
+      targetType: 'filePath'
+      filePath: wait-for-server-health.sh
+  - task: Bash@3
+    displayName: Grant execute permission to docker bash script
+    inputs:
+      targetType: 'inline'
+      script: chmod +x docker-network.sh
+  - task: Bash@3
+    displayName: Docker network info
+    inputs:
+      targetType: 'filePath'
+      filePath: docker-network.sh
+  # template here https://wowonline.visualstudio.com/Platform%20Engineering/_git/vsts-build-templates?path=%2Fdotnet%2Fbuild.yaml&version=GBmaster
+  - template: dotnet/build.yaml@templates
+    parameters:
+      appName: $(appName)
+      projectName: $(projectName)
+      runTests: true
+      dotnetVersion: $(dotnetVersion)
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      projects: $(System.DefaultWorkingDirectory)/*.sln    
+      testProjects: 'test/Ecf.Masterdata.Consumer.Tests/Ecf.Masterdata.Consumer.Tests.csproj'
+      testResultsDir: 'UnitTestResults'
+      publishTestCoverage: true
+      gitVersioningCondition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      coverletExclude: '[xunit*]'
+      sonarCoverageExclusions: 'test/**'
+
+  # template here https://wowonline.visualstudio.com/Platform%20Engineering/_git/vsts-build-templates?path=%2Fdotnet%2Fpublish-docker.yaml&version=GBmaster
+  - template: dotnet/publish-docker.yaml@templates
+    parameters:
+      azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+      pushCondition: and(succeeded(),startsWith(variables['Build.SourceBranch'], 'refs/heads/'))
+
+  - task: DockerCompose@0
+    displayName: Docker compose clean up test sql server
+    inputs:
+      action: Run a Docker Compose command
+      # azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+      # azureContainerRegistry: $(azureContainerRegistry)
+      dockerComposeFile: docker-compose.data.yml
+      projectName: $(Build.Repository.Name)
+      dockerComposeCommand: rm --stop --force
+    condition: succeededOrFailed()

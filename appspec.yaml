@@ -1,0 +1,146 @@
+replicaCount: {{REPLICA_COUNT}}
+
+resources:
+  requests:
+    cpu: 1500m
+    memory: 1500Mi
+  limits:
+    cpu: 1500m
+    memory: 1500Mi
+
+autoscaling:
+  minReplicas: {{REPLICA_COUNT}}
+  maxReplicas: {{MAX_REPLICAS}}
+  cpu: 60
+
+environment:
+  - name: Environment
+    value: "{{Environment}}"
+  - name: APPINSIGHTS_INSTRUMENTATIONKEY
+    value: "{{APPINSIGHTS_INSTRUMENTATIONKEY}}"
+  - name: APPINSIGHTS_CLOUDROLENAME
+    value: "{{APPINSIGHTS_CLOUDROLENAME}}" 
+  - name: Serilog__MinimumLevel__Default
+    value: "{{Serilog.MinimumLevel.Default}}"
+  - name: ConnectionStrings__Storage
+    valueFromSecret: AzureWebJobsStorage
+  - name: Database__Server
+    valueFromSecret: DatabaseServer
+  - name: Database__Name
+    valueFromSecret: DatabaseName
+  - name: Database__OverrideName
+    value: "{{DatabaseOverrideName}}"
+  - name: Database__UserId
+    valueFromSecret: DatabaseUserId
+  - name: Database__Password
+    valueFromSecret: DatabasePassword
+  - name: MaxDegreeOfParallelism
+    value: "{{MaxDegreeOfParallelism}}"
+  - name: PriceUpsertConcurrencyLevel
+    value: "{{PriceUpsertConcurrencyLevel}}"
+  - name: EventHub__BeginReadingFromTime
+    value: "{{EventHubBeginReadingFromTime}}"
+  - name: EventHub__BeginReadingFromEnd
+    value: "{{EventHubBeginReadingFromEnd}}"
+  - name: EventHub__OverrideMaxBatchSize
+    value: "{{EventHubOverrideMaxBatchSize}}"
+  - name: EventHub__OverridePrefetchCount
+    value: "{{EventHubOverridePrefetchCount}}"
+  - name: EventHub_OverrideCheckpointFrequency
+    value: "{{EventHubOverrideCheckpointFrequency}}"
+  - name: EventHub__ArticleFull__HubName
+    value: "{{ArticleFullHubName}}"
+  - name: EventHub__ArticleFull__IsDisabled
+    value: "{{ArticleFullFunctionDisabled}}"
+  - name: EventHub__ArticleFull__Connection
+    valueFromSecret: EventHubArticleFullConnectionString
+  - name: EventHub__ArticleFull__ConsumerGroupName
+    value: "{{ArticleFullConsumerGroupName}}"
+  - name: EventHub__ArticleDelta__HubName
+    value: "{{ArticleDeltaHubName}}"
+  - name: EventHub__ArticleDelta__IsDisabled
+    value: "{{ArticleDeltaFunctionDisabled}}"
+  - name: EventHub__ArticleDelta__Connection
+    valueFromSecret: EventHubArticleDeltaConnectionString
+  - name: EventHub__ArticleDelta__ConsumerGroupName
+    value: "{{ArticleDeltaConsumerGroupName}}"
+
+  - name: EventHub__ArticleServiceDelta__HubName
+    value: "{{ArticleServiceDeltaHubName}}"
+  - name: EventHub__ArticleServiceDelta__IsDisabled
+    value: "{{ArticleServiceDeltaFunctionDisabled}}"
+  - name: EventHub__ArticleServiceDelta__Connection
+    valueFromSecret: EventHubArticleServiceDeltaConnectionString
+  - name: EventHub__ArticleServiceDelta__ConsumerGroupName
+    value: "{{ArticleServiceDeltaConsumerGroupName}}"
+
+  - name: EventHub__RealtimeArticleFeaturesDelta__HubName
+    value: "{{RealtimeArticleFeaturesDeltaHubName}}"
+  - name: EventHub__RealtimeArticleFeaturesDelta__IsDisabled
+    value: "{{RealtimeArticleFeaturesDeltaFunctionDisabled}}"
+  - name: EventHub__RealtimeArticleFeaturesDelta__Connection
+    valueFromSecret: EventHubRealtimeArticleFeaturesDeltaConnectionString
+  - name: EventHub__RealtimeArticleFeaturesDelta__ConsumerGroupName
+    value: "{{RealtimeArticleFeaturesDeltaConsumerGroupName}}"
+
+  - name: EventHub__RealtimeStoreDelta__HubName
+    value: "{{RealtimeStoreDeltaHubName}}"
+  - name: EventHub__RealtimeStoreDelta__IsDisabled
+    value: "{{RealtimeStoreDeltaFunctionDisabled}}"
+  - name: EventHub__RealtimeStoreDelta__Connection
+    valueFromSecret: EventHubRealtimeStoreDeltaConnectionString
+  - name: EventHub__RealtimeStoreDelta__ConsumerGroupName
+    value: "{{RealtimeStoreDeltaConsumerGroupName}}"
+
+  - name: EventHub__PricingFull__HubName
+    value: "{{PricingFullHubName}}"
+  - name: EventHub__PricingFull__IsDisabled
+    value: "{{PricingFullFunctionDisabled}}"
+  - name: EventHub__PricingFull__Connection
+    valueFromSecret: EventHubPricingFullConnectionString
+  - name: EventHub__PricingFull__ConsumerGroupName
+    value: "{{PricingFullConsumerGroupName}}"
+  - name: EventHub__PricingServiceDelta__HubName
+    value: "{{PricingServiceDeltaHubName}}"
+  - name: EventHub__PricingServiceDelta__IsDisabled
+    value: "{{EventHubPricingServiceDeltaIsDisabled}}"
+  - name: EventHub__PricingServiceDelta__Connection
+    valueFromSecret: EventHubPricingDeltaConnectionString
+  - name: EventHub__PricingServiceDelta__ConsumerGroupName
+    value: "{{PricingServiceDeltaConsumerGroupName}}"
+  - name: EventHub__StoreFull__HubName
+    value: "{{StoreFullHubName}}"
+  - name: EventHub__StoreFull__IsDisabled
+    value: "{{StoreFullFunctionDisabled}}"
+  - name: EventHub__StoreFull__Connection
+    valueFromSecret: EventHubStoreFullConnectionString
+  - name: EventHub__StoreFull__ConsumerGroupName
+    value: "{{StoreFullConsumerGroupName}}"
+  - name: EventHub__StoreDelta__HubName
+    value: "{{StoreDeltaHubName}}"
+  - name: EventHub__StoreDelta__IsDisabled
+    value: "{{StoreDeltaFunctionDisabled}}"
+  - name: EventHub__StoreDelta__Connection
+    valueFromSecret: EventHubStoreDeltaConnectionString
+  - name: EventHub__StoreDelta__ConsumerGroupName
+    value: "{{StoreDeltaConsumerGroupName}}"
+  - name: DatabaseConnectionRetryTimeInSeconds
+    value: "{{DatabaseConnectionRetryTimeInSeconds}}"
+  - name: IsRealtimeConsumer
+    value: "{{IsRealtimeConsumer}}"
+
+secrets:
+  AzureWebJobsStorage: "{{storage-ecf-primary-connection}}"
+  DatabaseUserId: "{{Ecf-Db-UserId}}"
+  DatabasePassword: "{{Ecf-Db-Password}}"
+  DatabaseServer: "{{Ecf-Db-ServerName}}"
+  DatabaseName: "{{Ecf-Db-Name}}"
+  EventHubArticleFullConnectionString: "{{mdl-ecf-article-full-consumer-group-lsnr-primary-conn}}"
+  EventHubArticleDeltaConnectionString: "{{mdl-ecf-article-delta-consumer-group-lsnr-primary-conn}}"
+  EventHubPricingFullConnectionString: "{{mdl-ecf-pricing-full-consumer-group-lsnr-primary-conn}}"
+  EventHubPricingDeltaConnectionString: "{{mdl-ecf-pricing-service-delta-cg-lsnr-primary-conn}}"
+  EventHubStoreFullConnectionString: "{{mdl-ecf-store-full-consumer-group-lsnr-primary-conn}}"
+  EventHubStoreDeltaConnectionString: "{{mdl-ecf-store-delta-consumer-group-lsnr-primary-conn}}"
+  EventHubArticleServiceDeltaConnectionString: "{{mdl-ecf-article-service-delta-cg-lsnr-primary-conn}}"
+  EventHubRealtimeArticleFeaturesDeltaConnectionString: "{{rmdl-ecf-article-delta-cg-lsnr-primary-conn}}"
+  EventHubRealtimeStoreDeltaConnectionString: "{{rmdl-ecf-store-delta-cg-lsnr-primary-conn}}"
