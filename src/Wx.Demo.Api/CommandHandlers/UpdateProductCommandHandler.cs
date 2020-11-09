@@ -4,6 +4,7 @@ using MediatR;
 using Wx.Demo.Api.Commands;
 using Wx.Demo.Api.Data;
 using Wx.Demo.Api.Models;
+using Wx.Demo.Api.Services;
 
 namespace Wx.Demo.Api.CommandHandlers
 {
